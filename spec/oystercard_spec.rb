@@ -1,3 +1,5 @@
-describe do
+require "oystercard"
+
+describe Oystercard do
 
 end
