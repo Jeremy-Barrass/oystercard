@@ -1,6 +1,7 @@
 class Oystercard
   DEFAULT_BALANCE = 0
   MAX_LIMIT = 90
+  MIN_FARE = 1
   @message = "Unable to complete action: "
 
   attr_reader :balance
@@ -15,11 +16,8 @@ class Oystercard
     @balance += money
   end
 
-  def deduct_fare fare
-    @balance -= fare
-  end
-
   def touch_in
+    fail @message + "insufficient balance" if @balance < MIN_FARE
     @in_journey = true
   end
 
@@ -29,6 +27,12 @@ class Oystercard
 
   def touch_out
     @in_journey = false
+    deduct_fare(MIN_FARE)
   end
 
+  private
+
+  def deduct_fare(fare)
+    @balance -= fare
+  end
 end

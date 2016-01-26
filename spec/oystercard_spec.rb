@@ -19,17 +19,15 @@ describe Oystercard do
       it 'throws an error when MAX_LIMIT is passed on card' do
         expect{oystercard.top_up(Oystercard::MAX_LIMIT + 1)}.to raise_error
       end
-
-      it 'deducts the fare for a journey from the card' do
-        oystercard.deduct_fare(fare)
-        expect{subject.deduct_fare(fare)}.to change{oystercard.balance}.by -fare
-      end
     end
 
     context 'journey' do
       let (:new_card) {Oystercard.new}
 
-      before {subject.touch_in}
+      before do
+        subject.top_up(cash)
+        subject.touch_in
+      end
 
       it 'saves when a journey has been started' do
         expect(subject).to be_in_journey
@@ -42,6 +40,14 @@ describe Oystercard do
 
       it 'sets false as the default state for class Oystercard' do
         expect(new_card).not_to be_in_journey
+      end
+
+      it 'raises an error when the MIN_BALANCE is not available' do
+        expect{new_card.touch_in}.to raise_error
+      end
+
+      it 'deducts money after journey' do
+        expect{subject.touch_out}.to change{subject.balance}.by -Oystercard::MIN_FARE
       end
     end
 
