@@ -7,4 +7,8 @@ class Oystercard
     @balance = balance
   end
 
+  def add(money)
+    @balance = money
+  end
+
 end
