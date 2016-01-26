@@ -1,14 +1,12 @@
 class Oystercard
   DEFAULT_BALANCE = 0
   MAX_LIMIT = 90
-  MIN_FARE = 1
   @@message = "Unable to complete action: "
 
   attr_reader :balance, :starting_station, :exit_station, :hist
 
   def initialize(balance = Oystercard::DEFAULT_BALANCE)
     @balance = balance
-    @in_journey = false
     @hist = []
   end
 
@@ -17,21 +15,16 @@ class Oystercard
     @balance += money
   end
 
-  def touch_in(station)
-    fail @@message + "insufficient balance" if @balance < MIN_FARE
-    @starting_station = station
-    @exit_station = nil
-  end
-
-  def in_journey?
-    !@starting_station.nil?
+  def touch_in(station, journey=Journey.new)
+    fail @@message + "insufficient balance" if @balance < Journey::MIN_FARE
+    @journey = journey
+    @journey.journey_start station
   end
 
   def touch_out(station)
-    deduct_fare(MIN_FARE)
-    @exit_station = station
+    @journey.journey_end station
+    deduct_fare(@journey.calculate_fare)
     log_journey
-    @starting_station = nil
   end
 
   private
@@ -41,6 +34,6 @@ class Oystercard
   end
 
   def log_journey
-    hist << {starting_station => exit_station}
+    hist << @journey.current_journey
   end
 end
